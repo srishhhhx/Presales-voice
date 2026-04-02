@@ -1,68 +1,35 @@
 """
-stt_engine.py — Deepgram STT configuration factory for the LiveKit AgentSession.
+stt_engine.py -- Deepgram STT configuration factory.
 
-Provides a factory function that returns a correctly configured deepgram.STT
-plugin instance for use in AgentSession(stt=...). Key settings:
-  - nova-2 model: highest accuracy for English and Hindi
-  - detect_language=True: native EN/HI tag on every utterance, zero extra API call
-  - Hindi keyword boosting for improved accuracy on common terms
+Models:
+  English (en-IN): nova-3 -- latest model, strong English accuracy
+  Hindi   (hi):    nova-2 -- confirmed streaming support for language=hi
+                             nova-3 Hindi streaming support unconfirmed
+
+Keyword boosting is disabled -- causes transcription errors in multi mode.
 """
-import os
 from livekit.plugins import deepgram
 
-
-# Hindi terms to boost in Deepgram's recognition model.
-# Format: "word:boost_factor" -- 2x weight on these tokens.
-HINDI_KEYWORDS: list[str] = [
-    "namaste:2",
-    "haan:2",
-    "theek:2",
-    "aapka:2",
-    "kaise:2",
-    "accha:2",
-    "bilkul:2",
-    "dhanyawad:2",
-]
+_MODEL_FOR_LANG = {
+    "hi":    "nova-2",   # confirmed streaming Hindi support
+    "en-IN": "nova-3",   # latest, best English accuracy
+}
 
 
-def get_stt() -> deepgram.STT:
+def get_stt(language: str = "en") -> deepgram.STT:
     """
-    Return a configured Deepgram STT plugin instance for AgentSession.
+    Return a single-language Deepgram STT instance.
 
-    Configuration choices:
-      - model='nova-2': best accuracy for Indian English and Hindi
-      - detect_language=True: returns 'en'/'hi'/'en-IN'/'hi-IN' tag on
-        every utterance, parsed by language_detector.parse_deepgram_language()
-      - keywords: boosts common Hindi terms to improve recognition accuracy
-      - language parameter is NOT set -- detect_language handles this natively
-
-    Returns:
-        deepgram.STT: configured STT plugin ready for AgentSession(stt=...).
+    language='en' -> nova-3 en-IN
+    language='hi' -> nova-2 hi  (nova-2 confirmed for Hindi streaming)
     """
+    lang_code = "hi" if language == "hi" else "en-IN"
+    model = _MODEL_FOR_LANG[lang_code]
     return deepgram.STT(
-        model="nova-2",
-        detect_language=True,
-        keywords=HINDI_KEYWORDS,
+        model=model,
+        language=lang_code,
+        interim_results=False,
+        smart_format=True,
+        punctuate=True,
     )
 
-
-def get_language_tag_from_result(result: object) -> str | None:
-    """
-    Extract the Deepgram language tag from a transcript result object.
-
-    Deepgram returns the detected language at:
-      result.channel.alternatives[0].language
-
-    This is available on every utterance when detect_language=True is set.
-    No additional API call required -- included in STT response.
-
-    Args:
-        result: Deepgram transcript result object from the STT callback.
-
-    Returns:
-        Language tag string (e.g. 'hi', 'en-IN') or None if absent.
-    """
-    try:
-        return result.channel.alternatives[0].language
-    except (AttributeError, IndexError):
-        return None
