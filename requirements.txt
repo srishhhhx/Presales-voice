@@ -1,0 +1,15 @@
+livekit-agents>=1.0
+livekit-plugins-deepgram
+livekit-plugins-silero
+livekit-plugins-openai
+livekit-plugins-aws          # primary TTS — Polly (Raveena EN, Aditi HI)
+livekit-plugins-elevenlabs   # post-testing upgrade, not used during dev
+groq
+fastapi
+uvicorn
+pydantic
+pyyaml
+python-dotenv
+structlog
+pytest
+pytest-asyncio
