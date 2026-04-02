@@ -1,20 +1,15 @@
 """
-main.py -- LiveKit bilingual presales voicebot.
+main.py -- LiveKit bilingual presales voicebot (VoiceFlow AI / Aria).
 
-Architecture (single-stream, no restarts):
-  STT: Nova-2 language=hi for the entire session.
-       The hi model handles English, Hindi, and Hinglish seamlessly.
-       Confirmed from logs: "Pause for a second." → perfect in hi mode.
-       No stream restarts = no mid-conversation breakage.
+Pipeline:
+  STT : Deepgram Nova-2 language=hi (handles EN + HI + Hinglish, zero restarts)
+  LLM : Groq llama-3.3-70b-versatile via OpenAI-compatible API
+  TTS : AWS Polly Aditi standard (native en-IN + hi-IN, Indian accent)
+  VAD : Silero
 
-  LLM: Instructed to respond in the language the user speaks each turn.
-       Detects Hinglish naturally -- "kaafi manual ho jata hai" → responds HI.
-       "can you explain in English?" → responds EN.
-
-  TTS: Aditi (standard) for all speech -- native en-IN and hi-IN.
-       No voice switching needed; Aditi handles both.
-
-  Language tracking: used only for LLM context injection, not for stream control.
+Scope validation runs on every user transcript before LLM generation.
+Out-of-scope queries (pricing, contracts, competitors) trigger a redirect
+hint injected into the LLM context to keep responses in-scope.
 """
 import asyncio
 import contextlib
@@ -22,6 +17,7 @@ import logging
 import os
 import sys
 from collections.abc import AsyncIterable
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -41,6 +37,7 @@ from livekit.agents import (
 from livekit.agents.voice import Agent, ModelSettings
 from livekit.plugins import aws, openai, silero
 
+from src.scope_validator import check_scope, get_scope_reinforcement
 from src.stt_engine import get_stt
 
 load_dotenv()
@@ -48,18 +45,22 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Load system prompt from config
+_PROMPT_PATH = Path(__file__).parent.parent / "config" / "prompts" / "presale_system_prompt.txt"
+_SYSTEM_PROMPT = _PROMPT_PATH.read_text(encoding="utf-8").strip()
+
 
 class PresalesAgent(Agent):
     """
-    Bilingual presales agent -- single hi stream, no restarts.
+    Aria — VoiceFlow AI presales agent.
 
-    stt_node: Nova-2 language=hi handles EN, HI, and Hinglish in one
-              persistent stream. No language-triggered restarts.
-    tts_node: Aditi (standard) for all speech.
+    stt_node : Single Nova-2 hi stream -- handles EN, HI, Hinglish with no restarts.
+    tts_node : Aditi (standard) -- Indian English and Hindi voice.
+    Scope    : Every transcript checked; out-of-scope triggers LLM redirect hint.
     """
 
-    def __init__(self, instructions: str) -> None:
-        super().__init__(instructions=instructions)
+    def __init__(self) -> None:
+        super().__init__(instructions=_SYSTEM_PROMPT)
 
     async def stt_node(
         self,
@@ -67,17 +68,11 @@ class PresalesAgent(Agent):
         model_settings: ModelSettings,
     ) -> AsyncIterable[stt.SpeechEvent]:
         """
-        Single persistent Nova-2 hi stream for the entire session.
-
-        language=hi transcribes:
-          - Pure English    e.g. "Hi I'm looking to automate my calls"
-          - Pure Hindi      e.g. "तुम्हारा नाम क्या है?"
-          - Hinglish        e.g. "kaafi manual ho jata hai" / "200 calls hain"
-
-        No stream restarts means no mid-conversation dead zones.
-        The LLM receives the transcript as-is and matches the user's language.
+        Single Nova-2 language=hi stream for the full session.
+        Handles EN, HI and Hinglish without stream restarts.
+        Logs every transcript + scope check result.
         """
-        logger.info("[STT] Opening single hi stream (EN+HI+Hinglish)")
+        logger.info("[STT] Opening Nova-2 hi stream")
 
         async with get_stt(language="hi").stream() as stream:
             async def push_frames(s=stream) -> None:
@@ -96,10 +91,17 @@ class PresalesAgent(Agent):
                         text = (alt.text or "").strip()
                         if text:
                             dg_tag = getattr(alt, "language", None)
-                            logger.info(
-                                "[STT] transcript=%r  dg_tag=%s",
-                                text, dg_tag,
-                            )
+                            in_scope, topic, hint = check_scope(text)
+                            if not in_scope:
+                                logger.warning(
+                                    "[SCOPE] Out-of-scope topic=%s  transcript=%r  hint=%s",
+                                    topic, text, hint,
+                                )
+                            else:
+                                logger.info(
+                                    "[STT] transcript=%r  dg_tag=%s",
+                                    text, dg_tag,
+                                )
                     yield event
             finally:
                 push_task.cancel()
@@ -111,7 +113,7 @@ class PresalesAgent(Agent):
         text: AsyncIterable[str],
         model_settings: ModelSettings,
     ) -> AsyncIterable[rtc.AudioFrame]:
-        """Aditi (standard) -- handles en-IN and hi-IN natively."""
+        """Aditi (standard) -- Indian English and Hindi, native Indian accent."""
         logger.info("[TTS] Aditi")
         wrapped = tts.StreamAdapter(
             tts=aws.TTS(voice="Aditi", speech_engine="standard"),
@@ -134,20 +136,11 @@ class PresalesAgent(Agent):
 
 
 async def entrypoint(ctx: JobContext) -> None:
+    """LiveKit agent entrypoint -- initialises Aria for a new call."""
+    logger.info("[Agent] New call -- connecting")
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
 
-    agent = PresalesAgent(
-        instructions=(
-            "You are a helpful bilingual presales assistant supporting English and Hindi. "
-            "Carefully read EACH user message and respond ONLY in the language of that message:\n"
-            "- If the message is in Hindi or Hinglish (mixed Hindi/English), respond in Hindi.\n"
-            "- If the message is in English, respond in English.\n"
-            "- If the user asks to explain in English, switch to English immediately.\n"
-            "- If the user asks to speak in Hindi, switch to Hindi immediately.\n"
-            "Never mix languages in your response. Match the user's language exactly. "
-            "Keep responses to 2-3 sentences."
-        )
-    )
+    agent = PresalesAgent()
 
     session = AgentSession(
         vad=silero.VAD.load(),
@@ -162,14 +155,16 @@ async def entrypoint(ctx: JobContext) -> None:
     )
 
     await session.start(agent=agent, room=ctx.room)
+
+    # Aria's opening line — warm, brief, invites the prospect to speak
     await session.generate_reply(
         instructions=(
-            "Greet the user warmly in English. Say you're a bilingual assistant "
-            "and will respond naturally in whichever language they use — "
-            "English, Hindi, or a mix of both. One sentence only."
+            "Introduce yourself as Aria from VoiceFlow AI in one sentence. "
+            "Say you're here to understand their business and see if VoiceFlow can help. "
+            "Then ask one warm opening question: what kind of business they run or what brings them here today."
         )
     )
-    logger.info("[Agent] Ready -- single hi stream active")
+    logger.info("[Agent] Aria ready")
 
 
 if __name__ == "__main__":

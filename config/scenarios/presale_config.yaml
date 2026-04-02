@@ -1,0 +1,45 @@
+scenario: presale
+agent_name: Aria
+product: VoiceFlow AI
+
+# Qualification questions in order (asked one at a time)
+qualification_flow:
+  - id: industry
+    question: "What kind of business are you running?"
+  - id: call_volume
+    question: "How many calls do you handle per day roughly?"
+  - id: use_case
+    question: "What are most of these calls about — appointments, support, or something else?"
+  - id: current_setup
+    question: "How are these calls being handled today?"
+  - id: pain_point
+    question: "What's the biggest challenge with your current setup?"
+  - id: timeline
+    question: "Are you actively evaluating solutions right now, or still in the exploring stage?"
+
+# Topics the bot CANNOT discuss — triggers redirect response
+out_of_scope_topics:
+  - pricing
+  - discount
+  - cost
+  - quote
+  - contract
+  - sla
+  - timeline
+  - implementation time
+  - competitor
+  - vs
+  - better than
+
+# Redirect templates
+redirects:
+  pricing: "Pricing is customised based on your usage — I'll make sure our product team covers this in the demo."
+  contract: "Contract and SLA details are best handled by our sales team directly."
+  competitor: "I'd rather focus on how VoiceFlow fits your needs specifically."
+  timeline: "Our implementation team will give you a realistic timeline during your demo call."
+
+# After collecting these minimum fields, offer the demo
+minimum_qualification_fields: 3
+
+# Demo scheduling CTA
+demo_cta: "I'd love to set up a quick 20-minute demo with our product team — they can show you exactly how VoiceFlow works for [industry]. What days this week work best for you?"
