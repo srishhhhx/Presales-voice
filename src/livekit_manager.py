@@ -38,24 +38,28 @@ def build_session() -> AgentSession:
     """
     return AgentSession(
         vad=silero.VAD.load(
-            # Raised from 0.3 → 0.5: prevents TTS echo from registering as user speech
             activation_threshold=0.5,
-            # Raised from 0.01 → 0.15: ignores sub-150ms noise blips / breathing
             min_speech_duration=0.15,
-            # Keep at 0.8s to allow natural mid-sentence pauses
-            min_silence_duration=0.8,
+            # 1.2s: matches Deepgram endpointing_ms — tolerates Hinglish intra-sentence pauses
+            min_silence_duration=1.2,
         ),
         stt=get_stt(language="hi"),
         llm=get_llm(),
         tts=get_tts(),
-        # Align session-level endpointing with Deepgram's 800ms endpointing_ms
-        min_endpointing_delay=0.8,
-        # Allow genuine barge-ins but require 600ms of sustained speech to count
-        min_interruption_duration=0.6,
-        # Auto-resume if the framework determines the interruption was a false positive
+        # 8s warmup: covers the full ~6s intro greeting so Aria's own TTS echo
+        # cannot trigger a false interruption before the user speaks
+        aec_warmup_duration=8.0,
+        # Wait full 1.2s of silence before sending to LLM — aligns with Deepgram + Silero
+        min_endpointing_delay=1.2,
+        # Disable: prevents LLM firing before Silero VAD confirms turn is done
+        preemptive_generation=False,
+        # 150ms is enough for intentional speech — 600ms was blocking all barge-ins
+        min_interruption_duration=0.15,
+        # Confirm false interruptions in 1s not 2s, so genuine barge-ins aren't held
+        agent_false_interruption_timeout=1.0,
         resume_false_interruption=True,
         turn_handling={
             "interruption": {"enabled": True},
-            "endpointing": {"min_delay": 0.8, "max_delay": 4.0},
+            "endpointing": {"min_delay": 1.2, "max_delay": 5.0},
         },
     )

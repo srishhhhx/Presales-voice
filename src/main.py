@@ -154,6 +154,12 @@ class PresalesAgent(Agent):
                                     self.conv.record_escalation()
                                 self.conv.record_turn(role="user", text=text, language=lang, sentiment=sentiment)
                                 logger.info("[STT] transcript=%r  dg_tag=%s sentiment=%s", text, dg_tag, sentiment)
+
+                            # 3. Dynamic language injection so LLM always responds in the right language
+                            lang_label = "Hindi" if lang == "hi" else "English"
+                            lang_note = f"\n\n[LANGUAGE] The user's last message was in {lang_label}. You MUST respond entirely in {lang_label}."
+                            self._instructions = self._instructions + lang_note
+
                     yield event
             except Exception as exc:
                 # Catches WebSocket drops, Deepgram timeouts, or auth errors.
@@ -228,6 +234,12 @@ async def entrypoint(ctx: JobContext) -> None:
     session = build_session()
 
     await session.start(agent=agent, room=ctx.room)
+
+    # Wait for the first participant to join before greeting.
+    # This ensures AEC warmup fully settles before Aria starts speaking,
+    # preventing her own TTS echo from triggering a false interruption mid-intro.
+    participant = await ctx.wait_for_participant()
+    logger.info("[Agent] Participant joined: %s — starting greeting", participant.identity)
 
     await session.generate_reply(
         instructions=(

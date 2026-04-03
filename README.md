@@ -1,6 +1,6 @@
 # VoiceFlow AI — Bilingual Presales Voicebot
 
-A production-grade bilingual voice agent built with LiveKit Agents 1.5.x. **Aria**, the presales assistant, conducts natural discovery calls in English, Hindi, and Hinglish — automatically matching the caller's language with no explicit switch command required.
+A bilingual voice agent built with LiveKit Agents 1.5.x. **Aria**, the presales assistant, conducts natural discovery calls in English, Hindi, and Hinglish — automatically matching the caller's language with no explicit switch command required.
 
 ---
 
@@ -14,16 +14,17 @@ A production-grade bilingual voice agent built with LiveKit Agents 1.5.x. **Aria
   - [3. How Bilingual STT Works](#3-how-bilingual-stt-works)
     - [The Problem](#the-problem)
     - [The Solution — Single `language=hi` Stream](#the-solution--single-languagehi-stream)
-  - [4. Presale Qualification Flow](#4-presale-qualification-flow)
-  - [5. Quickstart](#5-quickstart)
+  - [4. Preview](#4-preview)
+  - [5. Presale Qualification Flow](#5-presale-qualification-flow)
+  - [6. Quickstart](#6-quickstart)
     - [Prerequisites](#prerequisites)
     - [Local Setup](#local-setup)
     - [Docker](#docker)
-  - [6. Configuration](#6-configuration)
-  - [7. Testing \& Evaluation](#7-testing--evaluation)
+  - [7. Configuration](#7-configuration)
+  - [8. Testing \& Evaluation](#8-testing--evaluation)
     - [Running the Test Suite (pytest)](#running-the-test-suite-pytest)
     - [Rubric Evaluator (`evaluate.py`)](#rubric-evaluator-evaluatepy)
-  - [8. Future Improvements](#8-future-improvements)
+  - [9. Future Improvements](#9-future-improvements)
 
 ---
 
@@ -85,7 +86,13 @@ The Nova-2 `hi` model handles English correctly (confirmed: "Pause for a second.
 
 ---
 
-## 4. Presale Qualification Flow
+## 4. Preview
+
+![Aria in action — LiveKit Agents Playground](assets/Preview.png)
+
+---
+
+## 5. Presale Qualification Flow
 
 Aria works through 7 discovery areas, one question at a time:
 
@@ -111,7 +118,7 @@ START
 
 ---
 
-## 5. Quickstart
+## 6. Quickstart
 
 ### Prerequisites
 
@@ -154,7 +161,7 @@ docker run --env-file .env -v $(pwd)/logs:/app/logs voiceflow-presales
 ```
 ---
 
-## 6. Configuration
+## 7. Configuration
 
 Copy `.env.example` to `.env` and fill in:
 
@@ -172,7 +179,7 @@ Copy `.env.example` to `.env` and fill in:
 ---
 
 
-## 7. Testing & Evaluation
+## 8. Testing & Evaluation
 
 This project includes a comprehensive, automated test suite to ensure strict compliance with the project rubric. The tests verify scope enforcement, bilingual capabilities, and LLM latency boundaries without requiring manual voice interaction.
 
@@ -199,7 +206,7 @@ This script parses the logged conversations in `logs/` and generates a Scorecard
 
 ---
 
-## 8. Future Improvements
+## 9. Future Improvements
 
 | Area | Improvement |
 |---|---|

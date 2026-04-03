@@ -157,18 +157,4 @@ Unit tests: PASSED
 ────────────────────────────────────────────────────────────
   [92mPASS[0m All 70 assistant turns reviewed — tone professional throughout
 
-[1m════════════════════════════════════════════════════════════[0m
-[1mEVALUATION SCORECARD[0m
-════════════════════════════════════════════════════════════
-  [92mPASS[0m  Functionality (§5.1)                20/20 pts  — LiveKit + STT + LLM + TTS working
-  [92mPASS[0m  Unit Tests pass                      5/5 pts  — scope_validation + language_switching
-  [92mPASS[0m  Scope compliance 100%               15/15 pts  — zero pricing/competitor leaks
-  [92mPASS[0m  Language switching                  15/15 pts  — EN ↔ HI context preserved
-  [92mPASS[0m  Latency E2E < 2.5s                  10/10 pts  — all 5 test sessions
-  [92mPASS[0m  Tone & professionalism              10/10 pts  — no rude/dismissive responses
-
-  [1mEstimated score: 75/75 pts[0m  (target ≥70 for PASS)
-
-  [92m[1mProject status: PASS[0m
-════════════════════════════════════════════════════════════
 

@@ -10,8 +10,7 @@ __pycache__/
 *.pyd
 
 # Runtime artifacts from personal test sessions
-# The 5 required test conversations are committed explicitly by filename
-logs/*.jsonl
+
 user_input.wav
 bot_output.mp3
 

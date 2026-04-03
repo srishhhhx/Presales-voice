@@ -31,6 +31,7 @@ def get_stt(language: str = "en") -> deepgram.STT:
         interim_results=False,
         smart_format=True,
         punctuate=True,
-        endpointing_ms=800,
+        # 1200ms: Indian/Hinglish speakers pause up to ~1.2s mid-sentence
+        endpointing_ms=1200,
     )
 
