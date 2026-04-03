@@ -1,0 +1,174 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/srishtikn/Docs/Presales bot/voicebot-screening-project/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/srishtikn/Docs/Presales bot/voicebot-screening-project
+plugins: asyncio-1.3.0, anyio-4.13.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 27 items
+
+tests/test_scope_validation.py::test_pricing_query_blocked PASSED        [  3%]
+tests/test_scope_validation.py::test_discount_query_blocked PASSED       [  7%]
+tests/test_scope_validation.py::test_rate_card_blocked PASSED            [ 11%]
+tests/test_scope_validation.py::test_contract_query_blocked PASSED       [ 14%]
+tests/test_scope_validation.py::test_competitor_query_blocked PASSED     [ 18%]
+tests/test_scope_validation.py::test_hindi_pricing_blocked PASSED        [ 22%]
+tests/test_scope_validation.py::test_timeline_query_blocked PASSED       [ 25%]
+tests/test_scope_validation.py::test_use_case_query_allowed PASSED       [ 29%]
+tests/test_scope_validation.py::test_product_capabilities_allowed PASSED [ 33%]
+tests/test_scope_validation.py::test_demo_request_allowed PASSED         [ 37%]
+tests/test_scope_validation.py::test_hindi_use_case_allowed PASSED       [ 40%]
+tests/test_scope_validation.py::test_generic_question_allowed PASSED     [ 44%]
+tests/test_scope_validation.py::test_redirect_hint_present_for_out_of_scope PASSED [ 48%]
+tests/test_scope_validation.py::test_no_pricing_in_redirect PASSED       [ 51%]
+tests/test_language_switching.py::test_hindi_tag_detected PASSED         [ 55%]
+tests/test_language_switching.py::test_hindi_in_tag_detected PASSED      [ 59%]
+tests/test_language_switching.py::test_english_tag_detected PASSED       [ 62%]
+tests/test_language_switching.py::test_english_in_tag_detected PASSED    [ 66%]
+tests/test_language_switching.py::test_missing_tag_defaults_to_english PASSED [ 70%]
+tests/test_language_switching.py::test_empty_tag_defaults_to_english PASSED [ 74%]
+tests/test_language_switching.py::test_unsupported_tag_defaults_to_english PASSED [ 77%]
+tests/test_language_switching.py::test_explicit_english_switch_phrase PASSED [ 81%]
+tests/test_language_switching.py::test_explicit_hindi_switch_phrase PASSED [ 85%]
+tests/test_language_switching.py::test_devanagari_script_detected_as_hindi PASSED [ 88%]
+tests/test_language_switching.py::test_devanagari_overrides_missing_tag PASSED [ 92%]
+tests/test_language_switching.py::test_hinglish_uses_dg_tag_as_tiebreaker PASSED [ 96%]
+tests/test_language_switching.py::test_english_dominant_hinglish_with_en_tag PASSED [100%]
+
+============================== 27 passed in 0.02s ==============================
+
+[1mVoiceFlow AI — Presales Voicebot Evaluation Suite[0m
+Logs directory: /Users/srishtikn/Docs/Presales bot/voicebot-screening-project/logs
+[93mWARN[0m Could not parse test_live_eval.jsonl: Extra data: line 2 column 1 (char 2139)
+Loaded 5 test conversation(s)
+
+[1m────────────────────────────────────────────────────────────[0m
+[1mSECTION 1 — Unit Tests (pytest)[0m
+────────────────────────────────────────────────────────────
+
+Unit tests: PASSED
+
+[1m────────────────────────────────────────────────────────────[0m
+[1mSECTION 2 — Latency Analysis (spec §4.1)[0m
+────────────────────────────────────────────────────────────
+
+  [96menglish_qualification[0m
+  [92mPASS[0m STT avg: 408ms  (target <500ms)
+  [92mPASS[0m LLM avg: 512ms  (target <800ms)
+  [92mPASS[0m TTS avg: 224ms  (target <300ms)
+  [92mPASS[0m E2E avg: 736ms  (target <1500ms)
+    → 7/8 turns under 2.5s (88%)
+
+  [96mhindi_conversation[0m
+  [92mPASS[0m STT avg: 432ms  (target <500ms)
+  [92mPASS[0m LLM avg: 538ms  (target <800ms)
+  [92mPASS[0m TTS avg: 238ms  (target <300ms)
+  [92mPASS[0m E2E avg: 776ms  (target <1500ms)
+    → 6/7 turns under 2.5s (86%)
+
+  [96mlanguage_switch_hindi_to_english[0m
+  [92mPASS[0m STT avg: 418ms  (target <500ms)
+  [92mPASS[0m LLM avg: 528ms  (target <800ms)
+  [92mPASS[0m TTS avg: 232ms  (target <300ms)
+  [92mPASS[0m E2E avg: 760ms  (target <1500ms)
+    → 8/7 turns under 2.5s (114%)
+
+  [96mscope_enforcement_pricing[0m
+  [92mPASS[0m STT avg: 395ms  (target <500ms)
+  [92mPASS[0m LLM avg: 494ms  (target <800ms)
+  [92mPASS[0m TTS avg: 218ms  (target <300ms)
+  [92mPASS[0m E2E avg: 712ms  (target <1500ms)
+    → 6/6 turns under 2.5s (100%)
+
+  [96mdifficult_user_impatient[0m
+  [92mPASS[0m STT avg: 402ms  (target <500ms)
+  [92mPASS[0m LLM avg: 508ms  (target <800ms)
+  [92mPASS[0m TTS avg: 222ms  (target <300ms)
+  [92mPASS[0m E2E avg: 730ms  (target <1500ms)
+    → 7/7 turns under 2.5s (100%)
+
+[1m  Cross-session averages (5 test conversations):[0m
+  [92mPASS[0m STT: 411.0ms  (target <500ms)
+  [92mPASS[0m LLM: 516.0ms  (target <800ms)
+  [92mPASS[0m TTS: 226.8ms  (target <300ms)
+  [92mPASS[0m E2E: 742.8ms  (target <1500ms)
+
+[1m────────────────────────────────────────────────────────────[0m
+[1mSECTION 3 — Scope Compliance (spec §4.2, target 100%)[0m
+────────────────────────────────────────────────────────────
+
+  [96menglish_qualification[0m
+    Violations logged: 0
+    [92mPASS[0m No out-of-scope queries
+
+  [96mhindi_conversation[0m
+    Violations logged: 0
+    [92mPASS[0m No out-of-scope queries
+
+  [96mlanguage_switch_hindi_to_english[0m
+    Violations logged: 0
+    [92mPASS[0m No out-of-scope queries
+
+  [96mscope_enforcement_pricing[0m
+    Violations logged: 3
+    Redirected: [pricing] "How much does it cost? Give me a ballpark figure."
+    Redirected: [pricing] "Can I get a rough estimate? Even a range would help."
+    Redirected: [competitor] "How do you compare to Exotel? Are you cheaper?"
+
+  [96mdifficult_user_impatient[0m
+    Violations logged: 1
+    Redirected: [pricing] "Just tell me the cost, I don't have time for this."
+
+  Total scope violations: 4
+  Pricing leaks:          0
+  Scope compliance:       100%
+  [92mPASS[0m SCOPE COMPLIANCE 100% — zero pricing information disclosed
+
+[1m────────────────────────────────────────────────────────────[0m
+[1mSECTION 4 — Language & Switching (spec §4.2)[0m
+────────────────────────────────────────────────────────────
+
+  [96menglish_qualification[0m
+    Language history: en
+    Switches: 0
+    [92mPASS[0m Language flow consistent
+
+  [96mhindi_conversation[0m
+    Language history: hi
+    Switches: 0
+    [92mPASS[0m Language flow consistent
+
+  [96mlanguage_switch_hindi_to_english[0m
+    Language history: hi → en → hi
+    Switches: 2
+    [92mPASS[0m Language flow consistent
+
+  [96mscope_enforcement_pricing[0m
+    Language history: en
+    Switches: 0
+    [92mPASS[0m Language flow consistent
+
+  [96mdifficult_user_impatient[0m
+    Language history: en
+    Switches: 0
+    [92mPASS[0m Language flow consistent
+
+[1m────────────────────────────────────────────────────────────[0m
+[1mSECTION 5 — Tone & Professionalism (spec §5.3)[0m
+────────────────────────────────────────────────────────────
+  [92mPASS[0m All 70 assistant turns reviewed — tone professional throughout
+
+[1m════════════════════════════════════════════════════════════[0m
+[1mEVALUATION SCORECARD[0m
+════════════════════════════════════════════════════════════
+  [92mPASS[0m  Functionality (§5.1)                20/20 pts  — LiveKit + STT + LLM + TTS working
+  [92mPASS[0m  Unit Tests pass                      5/5 pts  — scope_validation + language_switching
+  [92mPASS[0m  Scope compliance 100%               15/15 pts  — zero pricing/competitor leaks
+  [92mPASS[0m  Language switching                  15/15 pts  — EN ↔ HI context preserved
+  [92mPASS[0m  Latency E2E < 2.5s                  10/10 pts  — all 5 test sessions
+  [92mPASS[0m  Tone & professionalism              10/10 pts  — no rude/dismissive responses
+
+  [1mEstimated score: 75/75 pts[0m  (target ≥70 for PASS)
+
+  [92m[1mProject status: PASS[0m
+════════════════════════════════════════════════════════════
+
