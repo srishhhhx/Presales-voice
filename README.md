@@ -202,7 +202,7 @@ python tests/evaluate.py
 ```
 This script parses the logged conversations in `logs/` and generates a Scorecard validating End-to-End Latency (<2.5s), 100% Scope Compliance, Tone, and Functional features.
 
-![Evaluation Scorecard](https://via.placeholder.com/600x300?text=Automated+Rubric+Evaluator+-+Evaluate.py)
+> [More details in evaluation.md file](docs/EVALUATION.md)
 
 ---
 
