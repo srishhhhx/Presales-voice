@@ -45,6 +45,7 @@ Aria is a presales voice agent for **VoiceFlow AI**, a call automation platform 
 | LLM | Groq — LLaMA 3.3 70B Versatile |
 | Text-to-Speech | AWS Polly — Aditi (standard, Indian accent) |
 | VAD | Silero |
+| Sentiment Engine | VADER Lexicon (In-memory) |
 | Runtime | Python 3.12 |
 
 ---
@@ -59,6 +60,7 @@ Aria is a presales voice agent for **VoiceFlow AI**, a call automation platform 
 - **Zero-Latency Scope Enforcement:** Hardcoded Regex layers classify user intent instantly before querying the LLM, securely sandboxing competitor/pricing inquiries.
 - **VAD & Endpointing Harmony:** Aligning Deepgram's internal acoustic endpointing (`800ms`) with Silero's VAD boundaries prevents fragmented user phrasing.
 - **LPU LLM Generation:** Llama 3 via Groq bounds Time-to-First-Token inference to under `<450ms`, preserving lifelike response pacing.
+- **Zero-Latency Tone Shifting:** We run VADER sentiment checks across inbound user text locally (`<2ms`), dynamically overriding the LLM system prompt on the fly if the user signals frustration or anger.
 
 ---
 
