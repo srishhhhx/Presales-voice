@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  voicebot:
+    build: .
+    container_name: voiceflow-presales
+    env_file:
+      - ./.env
+    # Mount the local logs directory so the reviewer can access the generated JSONL outputs
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

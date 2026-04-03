@@ -153,11 +153,17 @@ Then open the [LiveKit Agents Playground](https://agents-playground.livekit.io),
 
 ### Docker
 
+**Using Docker Compose (Recommended)**
+Provides a seamless one-command setup and automatically mounts `logs/` back to your host machine so you can review `conversations.jsonl` immediately:
 ```bash
-docker build -t voiceflow-presales .
-docker run --env-file .env voiceflow-presales
+docker compose up --build -d
 ```
 
+**Using Standalone Docker**
+```bash
+docker build -t voiceflow-presales .
+docker run --env-file .env -v $(pwd)/logs:/app/logs voiceflow-presales
+```
 ---
 
 ## 6. Configuration
