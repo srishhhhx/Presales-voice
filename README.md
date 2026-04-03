@@ -51,7 +51,7 @@ Aria is a presales voice agent for **VoiceFlow AI**, a call automation platform 
 
 ## 2. Architecture
 
-![Architecture](assets/architecture.png)
+![Architecture](assets/Architecture.png)
 
 ### Key Design Decisions
 *(For a comprehensive structural breakdown, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md))*
