@@ -10,7 +10,7 @@ import re
 # Keywords that indicate out-of-scope user intent
 _OUT_OF_SCOPE_PATTERNS: list[tuple[str, str]] = [
     # (topic_key, regex pattern)
-    ("pricing",     r"\b(price|pricing|cost|costs|quote|rupee|rs\.?|inr|how much|kitna|lagega|charge)\b"),
+    ("pricing",     r"\b(price|pricing|cost|costs|quote|rupee|rs\.?|inr|how much|rate card|kitna|lagega|charge)\b"),
     ("discount",    r"\b(discount|offer|deal|kam karo|negotiate|cheaper)\b"),
     ("contract",    r"\b(contract|sla|agreement|terms|legal|clause)\b"),
     ("timeline",    r"\b(how (long|soon)|implementation time|deploy|kitne din|kab tak|deadline)\b"),
@@ -18,11 +18,11 @@ _OUT_OF_SCOPE_PATTERNS: list[tuple[str, str]] = [
 ]
 
 _OUT_OF_SCOPE_HINTS = {
-    "pricing":    "Pricing is customised — our product team will cover this in detail during the demo.",
-    "discount":   "Discount structures are handled by our sales team directly.",
-    "contract":   "Contract details are best discussed with our sales team.",
-    "timeline":   "Implementation timelines depend on your setup — our team will give a realistic estimate in the demo.",
-    "competitor": "I'd prefer to focus on how VoiceFlow fits your needs specifically.",
+    "pricing":    "I'm sorry, pricing is highly customised based on your call volume. Would you like to schedule a demo so our product team can walk you through it?",
+    "discount":   "I apologize, but discount structures are handled directly by our sales team. Let me know if you’d like to speak with them.",
+    "contract":   "Sorry, I don't handle contracts, but our sales team would be happy to discuss the legal details with you on a quick call.",
+    "timeline":   "Implementation timelines depend entirely on your setup. I'd recommend a quick demo where our team can give you a realistic estimate.",
+    "competitor": "I'd rather not make direct comparisons, sorry! But I'd love to focus on how VoiceFlow can specifically solve your pain points.",
 }
 
 
