@@ -9,7 +9,6 @@ from livekit.agents import (
     AgentSession,
     AutoSubscribe,
     JobContext,
-    TurnHandlingOptions,
 )
 from livekit.plugins import silero
 
@@ -39,12 +38,24 @@ def build_session() -> AgentSession:
     """
     return AgentSession(
         vad=silero.VAD.load(
-            activation_threshold=0.3,
-            min_speech_duration=0.01,
+            # Raised from 0.3 → 0.5: prevents TTS echo from registering as user speech
+            activation_threshold=0.5,
+            # Raised from 0.01 → 0.15: ignores sub-150ms noise blips / breathing
+            min_speech_duration=0.15,
+            # Keep at 0.8s to allow natural mid-sentence pauses
             min_silence_duration=0.8,
         ),
         stt=get_stt(language="hi"),
         llm=get_llm(),
         tts=get_tts(),
-        turn_handling=TurnHandlingOptions(interruption={"enabled": True}),
+        # Align session-level endpointing with Deepgram's 800ms endpointing_ms
+        min_endpointing_delay=0.8,
+        # Allow genuine barge-ins but require 600ms of sustained speech to count
+        min_interruption_duration=0.6,
+        # Auto-resume if the framework determines the interruption was a false positive
+        resume_false_interruption=True,
+        turn_handling={
+            "interruption": {"enabled": True},
+            "endpointing": {"min_delay": 0.8, "max_delay": 4.0},
+        },
     )
