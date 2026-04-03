@@ -6,14 +6,24 @@ A production-grade bilingual voice agent built with LiveKit Agents 1.5.x. **Aria
 
 ## Table of Contents
 
-1. [Overview](#1-overview)
-2. [Architecture](#2-architecture)
-3. [How Bilingual STT Works](#3-how-bilingual-stt-works)
-4. [Presale Qualification Flow](#4-presale-qualification-flow)
-5. [Quickstart](#5-quickstart)
-6. [Configuration](#6-configuration)
-7. [Testing & Evaluation](#7-testing--evaluation)
-8. [Future Improvements](#8-future-improvements)
+- [VoiceFlow AI — Bilingual Presales Voicebot](#voiceflow-ai--bilingual-presales-voicebot)
+  - [Table of Contents](#table-of-contents)
+  - [1. Overview](#1-overview)
+  - [2. Architecture](#2-architecture)
+    - [Key Design Decisions](#key-design-decisions)
+  - [3. How Bilingual STT Works](#3-how-bilingual-stt-works)
+    - [The Problem](#the-problem)
+    - [The Solution — Single `language=hi` Stream](#the-solution--single-languagehi-stream)
+  - [4. Presale Qualification Flow](#4-presale-qualification-flow)
+  - [5. Quickstart](#5-quickstart)
+    - [Prerequisites](#prerequisites)
+    - [Local Setup](#local-setup)
+    - [Docker](#docker)
+  - [6. Configuration](#6-configuration)
+  - [7. Testing \& Evaluation](#7-testing--evaluation)
+    - [Running the Test Suite (pytest)](#running-the-test-suite-pytest)
+    - [Rubric Evaluator (`evaluate.py`)](#rubric-evaluator-evaluatepy)
+  - [8. Future Improvements](#8-future-improvements)
 
 ---
 
@@ -41,31 +51,7 @@ Aria is a presales voice agent for **VoiceFlow AI**, a call automation platform 
 
 ## 2. Architecture
 
-```
- Caller (Browser / Phone)
-        │  WebRTC Audio
-        ▼
- ┌─────────────────────┐
- │   LiveKit Cloud     │   wss://presales-bot.livekit.cloud
- └────────┬────────────┘
-          │ AudioFrame stream
-          ▼
- ┌──────────────────────────────────────────────────────┐
- │              LiveKit Agent Worker                    │
- │                                                      │
- │  [Silero VAD] → [stt_node] → [LLM] → [tts_node]    │
- │                     │                    │           │
- │             Deepgram Nova-2          AWS Polly       │
- │             language=hi              Aditi std       │
- │             (EN + HI + Hinglish)     (en-IN + hi)   │
- │                     │                               │
- │            [Scope Validator]                        │
- │            [Conversation Manager] → logs/           │
- └──────────────────────────────────────────────────────┘
-          │ AudioFrame
-          ▼
- Caller hears Aria's response
-```
+![Architecture](assets/architecture.png)
 
 ### Key Design Decisions
 *(For a comprehensive structural breakdown, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md))*
